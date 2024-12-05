@@ -1,1 +1,84 @@
-Testing
+#include <iostream>
+#include <vector>
+#include <string>
+
+// Class representing a single book
+class Book {
+private:
+    std::string title;
+    std::string author;
+    std::string ISBN;
+
+public:
+    // Constructor
+    Book(std::string title, std::string author, std::string ISBN) 
+        : title(title), author(author), ISBN(ISBN) {}
+
+    // Getters
+    std::string getTitle() const { return title; }
+    std::string getAuthor() const { return author; }
+    std::string getISBN() const { return ISBN; }
+};
+
+// Class representing the hash table for book management
+class HashTable {
+private:
+    // Number of buckets
+    static const int BUCKET_COUNT = 10;
+
+    // Array of vectors for chaining
+    std::vector<std::vector<Book>> table;
+
+    // Hash function
+    int hashFunction(const std::string& ISBN) const {
+        int lastDigit = ISBN.back() - '0';  // Simplistic hash based on the last digit
+        return lastDigit % BUCKET_COUNT;
+    }
+
+public:
+    // Constructor
+    HashTable() : table(BUCKET_COUNT) {}
+
+    // Add a book to the hash table
+    void addBook(const Book& book) {
+        int index = hashFunction(book.getISBN());
+        table[index].push_back(book);
+        std::cout << "[TRACE] Book added to bucket " << index << ".\n";
+    }
+
+    // Retrieve a book by ISBN
+    void getBook(const std::string& ISBN) const {
+        int index = hashFunction(ISBN);
+        std::cout << "[TRACE] Looking in bucket " << index << "...\n";
+
+        for (const auto& book : table[index]) {
+            if (book.getISBN() == ISBN) {
+                std::cout << "[TRACE] Book found: " << book.getTitle() << " by " 
+                          << book.getAuthor() << ".\n";
+                return;
+            }
+        }
+
+        std::cout << "[TRACE] Book not found.\n";
+    }
+};
+
+// Main function demonstrating the system
+int main() {
+    std::cout << "[TRACE] Initializing the library system...\n";
+    
+    // Create a hash table
+    HashTable library;
+
+    // Add books
+    std::cout << "[TRACE] Adding books to the system...\n";
+    library.addBook(Book("The C++ Programming Language", "Bjarne Stroustrup", "978-0134685991"));
+    library.addBook(Book("Clean Code", "Robert C. Martin", "978-0132350884"));
+
+    // Retrieve a book
+    std::cout << "[TRACE] Retrieving books...\n";
+    library.getBook("978-0134685991");
+    library.getBook("978-0000000000");  // Non-existent book
+
+    return 0;
+}
